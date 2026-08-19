@@ -1,16 +1,18 @@
 name: Deploy GitHub Pages
 
-# Replaces the legacy branch-based Pages build (was: source = main /docs).
-# This workflow uploads docs/ as a Pages artifact and deploys via the
-# official actions/deploy-pages action. Faster and more reliable than the
-# legacy Jekyll path, especially when the docs/ tree contains many large
-# pre-rendered HTML files.
+# Upload docs/ as a Pages artifact and deploy via the official Pages actions.
+# The annotation layer is injected into the temporary deployment copy only:
+# canonical Markdown and committed generated HTML stay unchanged.
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
+      - agent/add-pages-catalog
     paths:
       - "docs/**"
+      - "tools/aris_annotations.js"
+      - "tools/inject_annotation_assets.py"
       - ".github/workflows/pages.yml"
   workflow_dispatch:
 
@@ -34,6 +36,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Inject local highlights and notes
+        run: python3 tools/inject_annotation_assets.py docs --script tools/aris_annotations.js
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
