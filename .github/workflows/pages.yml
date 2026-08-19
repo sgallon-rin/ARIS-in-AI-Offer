@@ -37,6 +37,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Validate annotation assets
+        run: |
+          node --check tools/aris_annotations.js
+          python3 -m py_compile tools/inject_annotation_assets.py
+
       - name: Inject local highlights and notes
         run: python3 tools/inject_annotation_assets.py docs --script tools/aris_annotations.js
 
