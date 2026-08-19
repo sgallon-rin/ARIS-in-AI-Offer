@@ -12,6 +12,7 @@ on:
     paths:
       - "docs/**"
       - "tools/aris_annotations.js"
+      - "tools/aris_annotation_selection_bridge.js"
       - "tools/inject_annotation_assets.py"
       - ".github/workflows/pages.yml"
   workflow_dispatch:
@@ -40,10 +41,14 @@ jobs:
       - name: Validate annotation assets
         run: |
           node --check tools/aris_annotations.js
+          node --check tools/aris_annotation_selection_bridge.js
           python3 -m py_compile tools/inject_annotation_assets.py
 
+      - name: Build annotation bundle
+        run: cat tools/aris_annotations.js tools/aris_annotation_selection_bridge.js > /tmp/aris_annotations_bundle.js
+
       - name: Inject local highlights and notes
-        run: python3 tools/inject_annotation_assets.py docs --script tools/aris_annotations.js
+        run: python3 tools/inject_annotation_assets.py docs --script /tmp/aris_annotations_bundle.js
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
